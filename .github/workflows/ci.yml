@@ -1,0 +1,43 @@
+name: Checks and synthetic-data smoke tests
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Unit tests
+        run: python -m pytest -q
+      - name: Quadratic smoke test
+        run: |
+          python -m adamw_lab.run --experiment quadratic \
+            --methods adam,adam_l2,adamw --seeds 42 \
+            --steps 10 --eval-every 5 --run-name ci \
+            --out-dir outputs
+      - name: Two Moons smoke test
+        run: |
+          python -m adamw_lab.run --experiment moons \
+            --methods adam,adam_l2,adamw --seeds 42 \
+            --steps 10 --eval-every 5 --run-name ci \
+            --out-dir outputs
+      - name: Upload real smoke-test metrics and charts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-experiments
+          path: outputs/
+          if-no-files-found: warn
