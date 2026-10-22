@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adamw-lab"
+version = "0.1.0"
+description = "Reproducible coupled Adam L2 vs decoupled AdamW benchmarks"
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.3",
+  "numpy>=1.24",
+  "scikit-learn>=1.3",
+  "matplotlib>=3.8",
+  "plotly>=5.18",
+  "loguru>=0.7",
+]
+
+[project.optional-dependencies]
+vision = ["torchvision>=0.18"]
+nlp = ["datasets>=2.19", "transformers>=4.40"]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[tool.setuptools.packages.find]
+include = ["adamw_lab*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
