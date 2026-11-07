@@ -35,7 +35,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args.methods = [m.strip() for m in args.methods.split(",")]
     if not args.methods or any(m not in METHODS for m in args.methods):
         p.error(f"--methods must be comma-separated values from {METHODS}")
-    args.seeds = [int(s.strip()) for s in args.seeds.split(",")]
+    try:
+        args.seeds = [int(s.strip()) for s in args.seeds.split(",")]
+    except ValueError:
+        p.error("--seeds must be comma-separated nonnegative integers")
+    if any(seed < 0 for seed in args.seeds):
+        p.error("--seeds must be comma-separated nonnegative integers")
     if not args.seeds or args.eval_every <= 0 or (args.steps is not None and args.steps <= 0):
         p.error("seeds must be nonempty, and step intervals must be positive")
     if args.weight_decay < 0 or args.epochs <= 0:
